@@ -38,15 +38,17 @@ public class RotaPedidos
                         .removeProperties(xpath("/livro/valorEbook").getText())
                         .marshal()
                         .xmljson()
-                        .log("${body}455")
+                        //                        .log("${body}")
                         .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.GET))
                         .setHeader(Exchange.HTTP_QUERY, simple("ebookId=${property.ARQ}&pedidoId=${property.orderId}&clienteId=${property.clientId}"))
                         .to("http4://localhost:8080/webservices/ebook/item");
 
                 from("seda:soapRoute")
                         .routeId("soap-route")
-                        .log("Calling soap service ....")
-                        .to("mock:soap");
+                        .to("xslt:pedido-para-soap.xslt")
+                        .log("${body}")
+                        .setHeader(Exchange.CONTENT_TYPE, constant("text/xml"))
+                        .to("http4://localhost:8080/webservices/financeiro");
             }
 
         });
