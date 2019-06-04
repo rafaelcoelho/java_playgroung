@@ -21,7 +21,8 @@ public class RotaPedidos
             @Override
             public void configure() throws Exception
             {
-                errorHandler(deadLetterChannel("file:erro")
+                errorHandler(deadLetterChannel("activemq:queue:orders.DLQ")
+                        .useOriginalMessage()
                         .maximumRedeliveries(3)
                         .redeliveryDelay(5000).onRedelivery(new Processor()
                         {
