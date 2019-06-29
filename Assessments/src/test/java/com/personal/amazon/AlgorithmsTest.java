@@ -67,6 +67,19 @@ public class AlgorithmsTest
     }
 
     @Test
+    public void testTruckV2()
+    {
+        ArrayList<Integer> packages = new ArrayList<>(Arrays.asList(20, 70, 90, 30, 60, 110));
+        assertEquals(Arrays.asList(0, 4), Truck.IDsOfPackages(110, packages));
+
+        ArrayList<Integer> packages2 = new ArrayList<>(Arrays.asList(100, 180, 40, 120, 10));
+        assertEquals(Arrays.asList(1, 2), Truck.IDsOfPackages(250, packages2));
+
+        ArrayList<Integer> packages3 = new ArrayList<>(Arrays.asList(220, 220, 170, 100, 50));
+        assertEquals(Arrays.asList(0, 4), Truck.IDsOfPackages(300, packages3));
+    }
+
+    @Test
     public void testMemory()
     {
         ArrayList<List<Integer>> fapp = new ArrayList<>();
