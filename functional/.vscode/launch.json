@@ -6,16 +6,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "CodeLens (Launch) - App",
+            "name": "CodeLens (Launch) - FunctionalExamples",
             "request": "launch",
-            "mainClass": "com.rscoelho.java.functional.App",
+            "mainClass": "com.rscoelho.java.functional.FunctionalExamples",
             "projectName": "streams"
-        },
-        {
-            "type": "java",
-            "name": "Debug (Launch)",
-            "request": "launch",
-            "mainClass": ""
         }
     ]
 }
