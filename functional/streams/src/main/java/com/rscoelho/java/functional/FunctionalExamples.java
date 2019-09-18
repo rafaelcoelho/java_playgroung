@@ -1,18 +1,23 @@
 package com.rscoelho.java.functional;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.Comparator.comparing;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 public class FunctionalExamples {
     public static void main(String[] args) {
+        final Function<Person, String> byName = Person::getName;
+        final Function<Person, Integer> byAge = Person::getAge;
+
         Comparator<Person> asc = Person::ageDifference;
         Comparator<Person> desc = asc.reversed();
 
-        List<Person> people = Arrays.asList(new Person("Ana", 30), new Person("John", 32), new Person("Bob", 18),
-                new Person("Lisa", 18));
+        List<Person> people = Arrays.asList(new Person("Aana", 18), new Person("Abohn", 18), new Person("Adob", 18),
+                new Person("Acisa", 18));
 
         System.out.println("Ascending is: ");
         people.stream().sorted(asc).collect(toList()).forEach(System.out::println);
@@ -28,6 +33,9 @@ public class FunctionalExamples {
 
         System.out.println("\nGetting Oldest: ");
         people.stream().max(asc).ifPresent(System.out::println);
+
+        System.out.println("\nSorting by two parameters: ");
+        people.stream().sorted(comparing(byAge).thenComparing(byName)).forEach(System.out::println);
     }
     
     
