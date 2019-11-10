@@ -5,6 +5,7 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-    "java.dependency.syncWithFolderExplorer": true,
-    "java.dependency.packagePresentation": "flat"
+    "java.dependency.syncWithFolderExplorer": false,
+    "java.dependency.packagePresentation": "flat",
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

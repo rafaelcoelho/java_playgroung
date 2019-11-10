@@ -15,47 +15,48 @@
  */
 package com.rscoelho.sandbox.vertx;
 
-import com.rscoelho.sandbox.model.Contact;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.Json;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.rxjava.ext.web.handler.BodyHandler;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
+import com.rscoelho.sandbox.model.Contact;
 
-
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.Json;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class MyWebVerticle extends AbstractVerticle {
     private Map<Integer, Contact> contacts = new TreeMap<>();
     private static final AtomicInteger COUNTER = new AtomicInteger();
 
+    // Convenience method so you can run it in your IDE
+    public static void main(String[] args) {
+        Runner.runExample(MyWebVerticle.class);
+        Vertx vertx = Vertx.vertx();
+        vertx.deployVerticle(new MyWebVerticle());
+        System.out.println(">>> Verticle starting upon Port 8080");
+    }
+
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         Router router = Router.router(vertx);
 
-        router.route("/").handler(routingContext -> {
-            HttpServerResponse response = routingContext.response();
-            response.putHeader("content-type", "text/html").end("<h1>Meu Primeiro Server com Vertx Funcionando</h1>");
-        });
+        router.route().handler(BodyHandler.create());
 
-        router.route("/api/contact*").handler(BodyHandler.create());
         router.post("/api/contact").handler(this::addContact);
-
-        vertx.createHttpServer().requestHandler(router::accept).listen(8080, ar -> {
-            if (ar.succeeded()) {
-                startFuture.complete();
-            } else {
-                startFuture.fail(ar.cause());
-            }
+        router.get("/api/contact/:id").handler(this::readById);
+        router.get("/api/contact").handler(requestHandler -> {
+            requestHandler.response().putHeader("content-type", "application-json; charset=utf-8")
+                    .end(Json.encodePrettily(contacts));
         });
 
+        vertx.createHttpServer().requestHandler(router).listen(8080);
     }
 
     private void addContact(RoutingContext context) {
@@ -63,15 +64,23 @@ public class MyWebVerticle extends AbstractVerticle {
         contact.setId(COUNTER.getAndIncrement());
         contacts.put(contact.getId(), contact);
 
-        context.response()
-            .setStatusCode(HttpResponseStatus.CREATED.code())
-            .putHeader("content-type", "application/json; charset=utf-8")
-            .end(Json.encodePrettily(contact));
+        context.response().setStatusCode(HttpResponseStatus.CREATED.code())
+                .putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(contact));
     }
-    
-    private void handleGet(RoutingContext routingContext) {
-        HttpServerResponse response = routingContext.response();
-        String welcome = routingContext.request().getParam("welcome");
-        response.end("Reply: " + welcome);
+
+    private void readById(final RoutingContext context) {
+        BiConsumer<RoutingContext, Integer> errorConsumer = (c, code) -> {
+            c.response().setStatusCode(code).end();
+        };
+
+        final Integer idInteger = Integer.valueOf(context.request().getParam("id"));
+
+        Contact contact = contacts.computeIfAbsent(idInteger, (k) -> {
+            errorConsumer.accept(context, 404);
+            throw new IllegalArgumentException();
+        });
+
+        context.response().putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(contact));
     }
 }

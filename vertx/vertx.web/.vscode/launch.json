@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - MyWebVerticle",
+            "request": "launch",
+            "mainClass": "com.rscoelho.sandbox.vertx.MyWebVerticle",
+            "projectName": "vertx.web"
+        }
+    ]
+}
